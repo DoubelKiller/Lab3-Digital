@@ -1,0 +1,92 @@
+--------------------------------------------------------------------------------------------------------
+-- Course 02138 Digital Elektronik 1 
+-- solution for lab 3 day 2 
+--	
+-- Jens Spars¯ October 2018
+--------------------------------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity lab3top is
+	port(	Brake    	:	in std_logic;		--	Brake signal
+			Left	    :	in std_logic;		--	Left trun signal 
+			Right    	:	in	std_logic;		--	Right trun signal 
+			Hazard   	:	in	std_logic;		--	Hazard signal 
+			Res	     	:	in	std_logic;		-- 	Reset signal 
+			clk 	    :	in	std_logic;		--	Clock signal from Basys3 board (100 MHz)
+			L0, L1, L2	:	out	std_logic;	    --	Rear light, turn left signals
+			R0, R1, R2	:	out	std_logic);	    --	Rear light, turn right signals
+end lab3top;
+
+architecture Structure of lab3top is
+
+	signal Clock, B, L, R, H, Reset	:	std_logic := '0';
+
+	component input_synchronizer is
+		port(	Clock	:	in	std_logic;
+				Brake	: 	in 	std_logic;
+				Left	: 	in 	std_logic;
+				Right	: 	in 	std_logic;
+				Hazard	: 	in 	std_logic;
+				Res		:	in	std_logic;
+				B		: 	out std_logic;
+				L		: 	out std_logic;
+				R		: 	out std_logic;
+				H		: 	out std_logic;
+				Reset	:	out	std_logic);
+	end component;
+
+	component clock_divider is
+		port(	clk 	:	in	std_logic;
+				Clock	:	out	std_logic);
+	end component;
+
+	component Thunderbird is
+		port(	B	     :	in	std_logic;
+				L	     :	in	std_logic;
+				R	     :	in	std_logic;
+				H	     :	in	std_logic;
+				Reset	 :	in	std_logic;
+				Clock	 :	in	std_logic;
+				L0,L1,L2 :	out	std_logic;
+				R0,R1,R2 :	out	std_logic);
+	end component;
+
+
+begin 
+
+	input_synchronizer1 : input_synchronizer port map(
+	       Clock => Clk,
+	       Brake => Brake, 
+	       Left => Left, 
+	       Right => Right, 
+	       Hazard => Hazard, 
+	       Res => Res, 
+	       B=> B, 
+	       L => L, 
+	       R => R,
+	       H => H,
+	       Reset => Reset);
+
+	-- Add instance of clock_manager
+		clock_manage : clock_divider port map(
+			clk => clk,
+			Clock => Clock
+			);
+	-- Add instance of Thunderbird
+        Thunderbirds : Thunderbird port map(
+            Clock => Clock,
+            Reset => Reset,
+            B => B, 
+            L => L, 
+            R => R,
+            H => H,
+            L0 => L0,
+            L1 => L1,
+            L2 => L2,
+            R0 => R0,
+            R1 => R1,
+            R2 => R2
+        );
+end Structure;
