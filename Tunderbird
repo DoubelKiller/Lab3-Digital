@@ -1,0 +1,94 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity Thunderbird is
+    Port ( B : in STD_LOGIC;
+           H : in STD_LOGIC;
+           L : in STD_LOGIC;
+           R : in STD_LOGIC;
+           Clock : in STD_LOGIC;
+           Reset : in STD_LOGIC;
+           L0,L1,L2 : out STD_LOGIC;
+           R0,R1,R2 : out STD_LOGIC);
+end Thunderbird;
+
+architecture Behavioral of Thunderbird is
+    signal lt1, lt0, lt1_next, lt0_next,rt1, rt0, rt1_next, rt0_next : STD_LOGIC := '0';
+begin
+    R0 <=
+    (not(rt1) and (rt0)) or
+    ((rt1) and (rt0)) or
+    ((rt1) and not(rt0));
+
+    R1 <=
+    ((rt1) and (rt0)) or
+    ((rt1) and not(rt0));
+
+    R2 <=
+    (rt1) and (rt0);
+
+    L0 <=
+    (not(lt1) and (lt0)) or
+    ((lt1) and (lt0)) or
+    ((lt1) and not(lt0));
+
+    L1 <=
+    ((lt1) and (lt0)) or
+    ((lt1) and not(lt0));
+
+    L2 <=
+    (lt1) and (lt0);
+
+    rt1_next <=
+    ((H) and (not(rt0) or not(rt1) or not(lt0) or not(lt1))) or
+    (not(R) and B and not(H)) or 
+    (not(lt1) and not(lt0) and not(rt1) and rt0) or
+    (not(lt1) and not(lt0) and rt1 and not(rt0)) or
+    (lt0 and lt1 and not(rt1) and rt0) or
+    (lt1 and lt0 and rt1 and not(rt0));
+    
+    lt1_next <=
+    ((H) and (not(lt0) or not(lt1) or not(rt0) or not(rt1))) or
+    (not(L) and B and not(H)) or 
+    (not(rt1) and not(rt0) and not(lt1) and lt0) or
+    (not(rt1) and not(rt0) and lt1 and not(lt0)) or
+    (rt0 and rt1 and not(lt1) and lt0) or
+    (rt1 and rt0 and lt1 and not(lt0));
+    
+    rt0_next <=
+    ((H) and (not(rt0) or not(rt1) or not(lt0) or not(lt1))) or 
+    (not(R) and (B) and not(H)) or 
+    (not(lt1) and not(lt0) and (rt1) and not (rt0)) or
+    ((lt1) and (lt0) and (rt1) and not(rt0)) or
+    ((R) and (B) and not(H) and not(rt0)) or
+    (not(lt1) and not(lt0) and not(rt1) and not(rt0) and (R) and not(B) and not(H)) or
+    (lt1 and (lt0) and not(rt1) and not(rt0) and (R) and not(B) and not(H)) or
+    (lt1 and (lt0) and not(rt1) and (rt0) and (R) and (B) and (H));
+    
+    lt0_next <=
+    ((H) and (not(lt0) or not(lt1) or not(rt0) or not(rt1))) or 
+    (not(L) and (B) and not(H)) or 
+    (not(rt1) and not(rt0) and (lt1) and not (lt0)) or
+    ((rt1) and (rt0) and (lt1) and not(lt0)) or
+    ((L) and (B) and not(H) and not(lt0)) or
+    (not(rt1) and not(rt0) and not(lt1) and not(lt0) and (L) and not(B) and not(H)) or
+    (rt1 and (rt0) and not(lt1) and not(lt0) and (L) and not(B) and not(H)) or
+    (rt1 and (rt0) and not(lt1) and (lt0) and (L) and (B) and (H));
+    
+process(Clock,Reset)
+begin
+    if rising_edge(Clock) then
+        if Reset = '1' then
+            rt1 <= '0';
+            rt0 <= '0';
+            lt1 <= '0';
+            lt0 <= '0';
+        else
+            lt1 <= lt1_next;
+            lt0 <= lt0_next;
+            rt1 <= rt1_next;
+            rt0 <= rt0_next;
+        end if;
+    end if;
+end process;
+end Behavioral;
